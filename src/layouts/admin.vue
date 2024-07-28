@@ -17,8 +17,8 @@
   </div>
 </template>
 <script>
-import TheHeader from '@/components/TheHeader.vue';
-import TheMenu from '@/components/TheMenu.vue';
+import TheHeader from '@/components/TheHeader.vue'
+import TheMenu from '@/components/TheMenu.vue'
 
 export default {
   components: {
