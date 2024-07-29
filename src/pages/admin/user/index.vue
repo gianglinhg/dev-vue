@@ -1,5 +1,14 @@
 <template>
   <a-card title="Tài khoản" class="w-full">
+    <div class="flex justify-end">
+      <a-button type="primary" :size="size">
+        <template #icon>
+          <router-link :to="{ name: 'admin-user-create' }">
+            <i class="fa-solid fa-plus"></i>
+          </router-link>
+        </template>
+      </a-button>
+    </div>
     <a-table :dataSource="users" :columns="columns" :scroll="{ x: 426 }" :expand-column-width="100">
       <template #bodyCell="{ column, index, record }">
         <template v-if="column.key === 'index'">

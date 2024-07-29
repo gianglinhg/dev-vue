@@ -10,7 +10,7 @@
           </template>
         </a-list>
       </div>
-      <div class="basis-3/4">
+      <div class="basis-full md:basis-3/4">
         <router-view></router-view>
       </div>
     </div>
