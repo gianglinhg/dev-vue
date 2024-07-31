@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import { Select, Avatar, Table, Card, Menu, List, Button, Drawer, message } from 'ant-design-vue'
+import { Input, Select, Avatar, Table, Card, Menu, List, Button, Drawer, message } from 'ant-design-vue'
 import App from './App.vue'
 import router from './router'
 import axios from 'axios'
@@ -15,6 +15,7 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 
+app.use(Input)
 app.use(Select)
 app.use(Avatar)
 app.use(Button)
