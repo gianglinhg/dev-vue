@@ -17,22 +17,12 @@
       </div>
     </div>
   </div>
-  <a-drawer
-    v-model:open="visable"
-    class="custom-class"
-    root-class-name="root-class-name"
-    title="Danh mục"
-    placement="left"
-  >
+  <a-drawer v-model:open="visable" class="custom-class" root-class-name="root-class-name" title="Danh mục"
+    placement="left">
     <TheMenu />
   </a-drawer>
-  <a-drawer
-    v-model:open="visable_user"
-    class="custom-class"
-    root-class-name="root-class-name"
-    title="Admin"
-    placement="right"
-  >
+  <a-drawer v-model:open="visable_user" class="custom-class" root-class-name="root-class-name" title="Admin"
+    placement="right">
     <p>right...</p>
     <p>right...</p>
     <p>right...</p>
