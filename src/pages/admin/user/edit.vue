@@ -1,6 +1,6 @@
 <template>
-  <form @submit.prevent="createUser()">
-    <a-card title="Tạo mới tài khoản">
+  <form @submit.prevent="updateUsers()">
+    <a-card title="Cập nhật tài khoản">
       <div class="flex flex-col gap-5 md:flex-row">
         <div class="md:basis-3/12">
           <div class="flex flex-col justify-center items-center gap-2 w-full">
@@ -92,6 +92,13 @@
           </div>
           <div class="flex space-x-2 mb-2">
             <div class="basis-4/12 md:basic-full text-start md:text-end">
+            </div>
+            <div class="basis-8/12 md:basis-full">
+              <a-checkbox v-model:checked="change_password">Đổi mật khẩu</a-checkbox>
+            </div>
+          </div>
+          <div class="flex space-x-2 mb-2" v-if="change_password == true">
+            <div class="basis-4/12 md:basic-full text-start md:text-end">
               <label for="">
                 <span class="text-red-500 me-1">*</span>
                 <span :class="{ 'text-red-500': errors.password }">Mật khẩu</span>
@@ -101,10 +108,10 @@
               <a-input-password v-model:value="password" placeholder="Mật khẩu"
                 :class="{ 'select-danger': errors.password }" allow-clear />
               <div class="w-full"></div>
-              <small class="text-red-500" v-if="errors.password"> {{ errors.name[0] }}</small>
+              <small class="text-red-500" v-if="errors.password"> {{ errors.password[0] }}</small>
             </div>
           </div>
-          <div class="flex space-x-2 mb-2">
+          <div class="flex space-x-2 mb-2" v-if="change_password == true">
             <div class="basis-4/12 md:basic-full text-start md:text-end">
               <label for="">
                 <span class="text-red-500 me-1">*</span>
@@ -118,6 +125,27 @@
               <small class="text-red-500" v-if="errors.password_confirmation"> {{ errors.name[0] }}</small>
             </div>
           </div>
+          <div class="flex space-x-2 mb-2">
+            <div class="basis-4/12 md:basic-full text-start md:text-end">
+              <label for="">
+                <span>Lần đăng nhập gần đây: </span>
+              </label>
+            </div>
+            <div class="basis-8/12 md:basis-full">
+              <span>{{ login_at }}</span>
+            </div>
+          </div>
+          <div class="flex space-x-2 mb-2">
+            <div class="basis-4/12 md:basic-full text-start md:text-end">
+              <label for="">
+                <span>Lần đổi mật khẩu mật khẩu: </span>
+              </label>
+            </div>
+            <div class="basis-8/12 md:basis-full">
+              {{ change_password_at }}
+            </div>
+          </div>
+
         </div>
       </div>
       <div class="md:flex md:justify-end">
@@ -138,7 +166,9 @@
 <script>
 import { defineComponent, ref, reactive, toRefs } from 'vue';
 import { useMenu } from '@/stores/use-menu'
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
+import { message } from 'ant-design-vue';
+import dayjs from 'dayjs';
 
 
 useMenu().onSelectedKeys(['admin-users'])
@@ -154,28 +184,27 @@ export default defineComponent({
       password_confirmation: "",
       department_id: [],
       status_id: [],
+      change_password: false,
+      login_at: "",
+      change_password_at: "",
     });
     const errors = ref({});
+
+    const route = useRoute();
     const router = useRouter();
 
-    const createUser = () => {
-      axios.post(url_b + 'users', users)
+    const getUserEdit = () => {
+      axios.get(`${url_b}users/${route.params.id}/edit`)
         .then((res) => {
-          if (res.status == 200) {
-            message.success('Tạo mới thành công');
-            router.push({ name: "admin-users" })
-          }
-        })
-        .catch((err) => {
-          errors.value = err.response.data.errors;
+          users.username = res.data.users.username;
+          users.name = res.data.users.name;
+          users.email = res.data.users.email;
+          users.department_id = res.data.users.department_id;
+          users.status_id = res.data.users.status_id;
 
-          console.log(err);
-        });
-    }
+          users.login_at = res.data.users.login_at ? dayjs(res.data.users.login_at).format('DD/MM/YYYY HH:mm') : 'Chưa có lượt đăng nhập';
+          users.change_password_at = res.data.users.change_password_at ? dayjs(res.data.users.change_password_at).format('DD/MM/YYYY HH:mm') : 'Chưa có lượt đổi mật khẩu';
 
-    const getUserCreate = () => {
-      axios.get(url_b + 'users/create')
-        .then((res) => {
           user_status.value = res.data.users_status;
           deparments.value = res.data.departments;
         })
@@ -183,15 +212,28 @@ export default defineComponent({
           console.log(err);
         });
     }
+    getUserEdit();
+
+    const updateUsers = () => {
+      axios.put(`${url_b}users/${route.params.id}`, users)
+        .then((res) => {
+          if (res.status == 200) {
+            message.success(res.data.message);
+            router.push({ name: "admin-users" })
+          }
+        })
+        .catch((err) => {
+          errors.value = err.response.data.errors;
+        });
+    }
     const filterOption = (input, option) => {
       return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
     };
-    getUserCreate();
     return {
       filterOption,
+      updateUsers,
       user_status,
       deparments,
-      createUser,
       errors,
       ...toRefs(users),
     }

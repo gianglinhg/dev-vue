@@ -22,6 +22,16 @@
             {{ record.status }}
           </span>
         </template>
+        <template v-if="column.key === 'action'">
+          <router-link :to="{ name: 'admin-user-edit', params: { id: record.id } }">
+            <a-button type="primary" class="me-2 md:mb-2">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </a-button>
+          </router-link>
+          <a-button type="primary" v-if="record.id != 1" danger @click="deleteUsers(record.id)">
+            <i class="fa-solid fa-trash-can"></i>
+          </a-button>
+        </template>
       </template>
     </a-table>
   </a-card>
@@ -29,7 +39,10 @@
 
 <script setup>
 import { useMenu } from '@/stores/use-menu'
-import { ref } from 'vue';
+import axios from 'axios';
+import { ref, createVNode } from 'vue';
+import { Modal } from 'ant-design-vue';
+import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
 
 useMenu().onSelectedKeys(['admin-users'])
 
@@ -76,15 +89,36 @@ const columns = [
 const getUsers = () => {
   axios.get(url_b + 'users')
     .then((response) => {
-      console.log(response);
       users.value = response.data;
     })
     .catch((error) => {
       console.log(error);
     })
-    .finally(() => {
-      console.log(users);
-    });
 };
+
+const deleteUsers = (id) => {
+  Modal.confirm({
+    content: 'Bạn có chắc chắn ??',
+    icon: createVNode(ExclamationCircleOutlined),
+    onOk() {
+      axios.delete(`${url_b}users/${id}`)
+        .then((res) => {
+          if (res.status == 200) {
+            message.success(res.data)
+            getUsers();
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          message.warning(res.data)
+        });
+    },
+    cancelText: 'Hủy',
+    onCancel() {
+      Modal.destroyAll();
+    },
+  });
+
+}
 getUsers();
 </script>
